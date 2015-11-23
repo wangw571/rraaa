@@ -2,7 +2,7 @@ Imports System.ComponentModel
 Imports Microsoft.VisualBasic
 
 Public Class MainForm
-    Dim smStrL As String = "百度贴吧:xpulai QQ:36235970"
+    Dim smStrL As String = "百度贴吧:覅是（原作者xpulai） QQ:54306352"
     Dim 当前存档 As New 存档Class
     Private Sub MainForm_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
         Me.ComboBox1.Items.AddRange(模块名称s.ToArray)
@@ -116,8 +116,11 @@ Public Class MainForm
                 Dim bL As Bitmap = Image.FromFile(fnameL)
                 bL.MakeTransparent(Color.FromArgb(11, 11, 18, 255))
                 Me.Panel5.BackgroundImage = bL
+                Label15.Visible = False
             Else
                 Me.Panel5.BackgroundImage = Nothing
+                Me.Label15.Visible = True
+                Me.Label15.Location = Panel5.Location
             End If
             For i003 As Integer = 0 To 当前存档.模块s.Count - 1
                 Me.ListBox2.Items.Add(当前存档.模块s(i003))
@@ -616,9 +619,17 @@ Public Class MainForm
         PEFormL.ShowDialog()
     End Sub
 
+    Private Sub 存档修复ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 存档修复ToolStripMenuItem.Click
 
+    End Sub
 
+    Private Sub Panel5_Paint(sender As Object, e As PaintEventArgs) Handles Panel5.Paint
 
+    End Sub
+
+    Private Sub SaveFileDialog1_FileOk(sender As Object, e As CancelEventArgs) Handles SaveFileDialog1.FileOk
+
+    End Sub
 End Class
 
 
@@ -980,6 +991,7 @@ Public Structure 坐标A
         Return msL
     End Function
 End Structure
+
 
 Public Structure 坐标B
     Shared Sub New()
