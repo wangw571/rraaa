@@ -6,6 +6,8 @@ Public Class MainForm
     Dim 当前存档 As New 存档Class
     Private Sub MainForm_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
         Me.ComboBox1.Items.AddRange(模块名称s.ToArray)
+        'Me.模块选定箱.Items.Add("未选定")
+        'Me.模块选定箱.Items.AddRange(模块名称s.ToArray)
         ToolStripComboBox1.SelectedItem = My.MySettings.Default.显示位数.ToString
         OpenFileDialog1.InitialDirectory = My.MySettings.Default.插入存档位置
 
@@ -38,7 +40,7 @@ Public Class MainForm
         For i001 As Integer = 0 To fsL.Length - 1
             Dim sss As String = IO.Path.GetExtension(fsL(i001))
             If IO.Path.GetExtension(fsL(i001)) = ".bsg" Then
-                Me.ListBox1.Items.Add(IO.Path.GetFileNameWithoutExtension(fsL(i001)))
+                Me.ListBox1.Items.Add(IO.Path.GetFileNameWithoutExtension(fsL(i001))) '列表列出处
             End If
         Next
         If Me.ListBox1.Items.Count > 0 Then
@@ -57,7 +59,7 @@ Public Class MainForm
         存档L.文件名称 = IO.Path.GetFileNameWithoutExtension(文件名称C)
         存档L.文件路径 = IO.Path.GetDirectoryName(IO.Path.GetFullPath(文件名称C)) & "\"
         存档L.世界坐标 = New 坐标A(fstrLS(13).Trim)
-        存档L.世界旋转 = fstrLS(15).Trim
+        存档L.世界旋转 = 当前存档.世界旋转
 
         Dim 编号Ls() As String = fstrLS(1).Split("|")
         Dim 坐标Ls() As String = fstrLS(3).Split("|")
@@ -97,14 +99,18 @@ Public Class MainForm
         End If
         If 当前存档 Is Nothing Then
             TextBox1.Text = ""
-            TextBox2.Text = ""
+            世界X坐标box.Text = ""
+            世界Y坐标box.Text = ""
+            世界Z坐标box.Text = ""
             TextBox3.Text = ""
             TextBox4.Text = ""
             Me.Panel5.BackgroundImage = Nothing
             Me.Panel5.Refresh()
         Else
             TextBox1.Text = 当前存档.文件名称
-            TextBox2.Text = 当前存档.世界坐标.ToRoundString
+            世界X坐标box.Text = Math.Round(Double.Parse(当前存档.世界坐标.Roll), My.MySettings.Default.显示位数)
+            世界Y坐标box.Text = Math.Round(Double.Parse(当前存档.世界坐标.Yaw), My.MySettings.Default.显示位数)
+            世界Z坐标box.Text = Math.Round(Double.Parse(当前存档.世界坐标.Pitch), My.MySettings.Default.显示位数)
             If My.MySettings.Default.显示位数 >= 15 Then
                 TextBox3.Text = 当前存档.世界旋转
             Else
@@ -120,7 +126,8 @@ Public Class MainForm
             Else
                 Me.Panel5.BackgroundImage = Nothing
                 Me.Label15.Visible = True
-                Me.Label15.Location = Panel5.Location
+                Me.Label15.Parent = Me.Panel5
+                Me.Label15.Location = New Point(Panel5.Location.X + Panel5.Size.Width / 2, Panel5.Location.Y + Panel5.Size.Height / 2)
             End If
             For i003 As Integer = 0 To 当前存档.模块s.Count - 1
                 Me.ListBox2.Items.Add(当前存档.模块s(i003))
@@ -162,8 +169,12 @@ Public Class MainForm
             GroupBox4.Enabled = True
         End If
         Me.ComboBox1.SelectedIndex = 模块L.编号
-        Me.TextBox6.Text = 模块L.坐标.ToRoundString
-        Me.TextBox7.Text = 模块L.三维旋转坐标.ToRoundString
+        Me.X坐标输入框.Text = Math.Round(Double.Parse(模块L.坐标.Roll), My.MySettings.Default.显示位数)
+        Me.Y坐标输入框.Text = Math.Round(Double.Parse(模块L.坐标.Yaw), My.MySettings.Default.显示位数)
+        Me.Z坐标输入框.Text = Math.Round(Double.Parse(模块L.坐标.Pitch), My.MySettings.Default.显示位数)
+        Me.X旋转输入框.Text = Math.Round(Double.Parse(模块L.三维旋转坐标.Roll), My.MySettings.Default.显示位数)
+        Me.Y旋转输入框.Text = Math.Round(Double.Parse(模块L.三维旋转坐标.Yaw), My.MySettings.Default.显示位数)
+        Me.Z旋转输入框.Text = Math.Round(Double.Parse(模块L.三维旋转坐标.Pitch), My.MySettings.Default.显示位数)
         Me.TextBox8.Text = 模块L.四元旋转坐标.ToRoundString
         Me.ComboBox2.Text = 模块L.反转
         Me.ComboBox3.Text = 模块L.开关模式
@@ -192,17 +203,47 @@ Public Class MainForm
             End If
         End If
     End Sub
-    Private Sub TextBox2_Validated(sender As Object, e As System.EventArgs) Handles TextBox2.Validated
+    Private Sub 世界X坐标box_Validated(sender As Object, e As System.EventArgs) Handles 世界X坐标box.Validated
         If _编辑状态 = -1 Then
             If 当前存档 IsNot Nothing Then
-                Me.TextBox2.Text = Me.TextBox2.Text.Trim
-                If isdou(Me.TextBox2.Text, 3) = True Then
-                    Dim nzbL As New 坐标A(Me.TextBox2.Text)
+                Me.世界X坐标box.Text = Me.世界X坐标box.Text.Trim
+                If isdou(Me.世界X坐标box.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(Double.Parse(Me.世界X坐标box.Text), 当前存档.世界坐标.Yaw, 当前存档.世界坐标.Pitch)
                     If nzbL.ToRoundString <> 当前存档.世界坐标.ToRoundString Then
                         当前存档.世界坐标 = nzbL
                     End If
                 End If
-                Me.TextBox2.Text = 当前存档.世界坐标.ToRoundString
+                Me.世界X坐标box.Text = Math.Round(Double.Parse(世界X坐标box.Text), My.MySettings.Default.显示位数)
+                TextBox5.Text = 生成存档文本()
+            End If
+        End If
+    End Sub
+    Private Sub 世界Y坐标box_Validated(sender As Object, e As System.EventArgs) Handles 世界Y坐标box.Validated
+        If _编辑状态 = -1 Then
+            If 当前存档 IsNot Nothing Then
+                Me.世界Y坐标box.Text = Me.世界Y坐标box.Text.Trim
+                If isdou(Me.世界Y坐标box.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(当前存档.世界坐标.Roll, Double.Parse(Me.世界Y坐标box.Text), 当前存档.世界坐标.Pitch)
+                    If nzbL.ToRoundString <> 当前存档.世界坐标.ToRoundString Then
+                        当前存档.世界坐标 = nzbL
+                    End If
+                End If
+                Me.世界Y坐标box.Text = Math.Round(Double.Parse(世界Y坐标box.Text), My.MySettings.Default.显示位数)
+                TextBox5.Text = 生成存档文本()
+            End If
+        End If
+    End Sub
+    Private Sub 世界Z坐标box_Validated(sender As Object, e As System.EventArgs) Handles 世界Z坐标box.Validated
+        If _编辑状态 = -1 Then
+            If 当前存档 IsNot Nothing Then
+                Me.世界Z坐标box.Text = Me.世界Z坐标box.Text.Trim
+                If isdou(Me.世界Z坐标box.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(当前存档.世界坐标.Roll, 当前存档.世界坐标.Yaw, Double.Parse(Me.世界Z坐标box.Text))
+                    If nzbL.ToRoundString <> 当前存档.世界坐标.ToRoundString Then
+                        当前存档.世界坐标 = nzbL
+                    End If
+                End If
+                Me.世界Z坐标box.Text = Math.Round(Double.Parse(世界Z坐标box.Text), My.MySettings.Default.显示位数)
                 TextBox5.Text = 生成存档文本()
             End If
         End If
@@ -219,7 +260,7 @@ Public Class MainForm
                         nzb2L = Math.Round(CDbl(Me.TextBox3.Text), My.MySettings.Default.显示位数)
                     End If
                     If nzb1L <> nzb2L Then
-                        当前存档.世界旋转 = CDbl(Me.TextBox3.Text)
+                        当前存档.世界旋转 = 当前存档.世界旋转
                     End If
                 End If
                 If My.MySettings.Default.显示位数 > 15 Then
@@ -255,50 +296,162 @@ Public Class MainForm
         End If
     End Sub
 
-    Private Sub TextBox6_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles TextBox6.KeyDown
+    ' Private Sub 模块选定箱_SelectedIndexChanged(sender As Object, e As System.EventArgs)
+    '   If _编辑状态 = -1 Then
+    '    Dim 被选中编号 As Int16
+    '  '被选中编号 = Me.模块选定箱.SelectedIndex
+    'Me.ListBox2.Items.Clear()
+    '    For i003 As Integer = 0 To 当前存档.模块s.Count - 1
+    '    If 被选中编号 > 0 AndAlso 当前存档.模块s(i003).编号 <> 被选中编号 - 1 Then
+    '    Me.ListBox2.Items.Add(当前存档.模块s(i003))
+    '    Else
+    '    Me.ListBox2.Items.Add(当前存档.模块s(i003))
+    '    End If
+    '
+    'Next
+    '    ListBox2.SelectedIndex = 0
+    '       TextBox5.Text = 生成存档文本()
+
+    '    End If
+    '  End Sub
+
+    Private Sub X坐标输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles X坐标输入框.KeyDown
         If e.KeyCode = Keys.Enter Then
-            TextBox6_Validated(TextBox6, System.EventArgs.Empty)
+            X坐标输入框_Validated(X坐标输入框, System.EventArgs.Empty)
         End If
     End Sub
-    Private Sub TextBox6_Validated(sender As Object, e As System.EventArgs) Handles TextBox6.Validated
+    Private Sub X坐标输入框_Validated(sender As Object, e As System.EventArgs) Handles X坐标输入框.Validated 'X模块位置
         If _编辑状态 = -1 Then
             Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
             If 模块L IsNot Nothing Then
-                Me.TextBox6.Text = Me.TextBox6.Text.Trim
-                If isdou(Me.TextBox6.Text, 3) = True Then
-                    Dim nzbL As New 坐标A(Me.TextBox6.Text)
+                Me.X坐标输入框.Text = Me.X坐标输入框.Text.Trim
+                If isdou(Me.X坐标输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(Double.Parse(Me.X坐标输入框.Text), 模块L.坐标.Yaw, 模块L.坐标.Pitch)
                     If nzbL.ToRoundString <> 模块L.坐标.ToRoundString Then
                         模块L.坐标 = nzbL
                     End If
                 End If
-                Me.TextBox6.Text = 模块L.坐标.ToRoundString
+                Me.X坐标输入框.Text = Math.Round(Double.Parse(X坐标输入框.Text), My.MySettings.Default.显示位数)
+                TextBox5.Text = 生成存档文本()
+                '模块L.坐标.
+            End If
+        End If
+    End Sub
+
+    Private Sub Y坐标输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles Y坐标输入框.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            Y坐标输入框_Validated(Y坐标输入框, System.EventArgs.Empty)
+        End If
+    End Sub
+    Private Sub Y坐标输入框_Validated(sender As Object, e As System.EventArgs) Handles Y坐标输入框.Validated 'Y模块位置
+        If _编辑状态 = -1 Then
+            Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
+            If 模块L IsNot Nothing Then
+                Me.Y坐标输入框.Text = Me.Y坐标输入框.Text.Trim
+                If isdou(Me.Y坐标输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(模块L.坐标.Roll, Double.Parse(Me.Y坐标输入框.Text), 模块L.坐标.Pitch)
+                    If nzbL.ToRoundString <> 模块L.坐标.ToRoundString Then
+                        模块L.坐标 = nzbL
+                    End If
+                End If
+                Me.Y坐标输入框.Text = Math.Round(Double.Parse(Y坐标输入框.Text), My.MySettings.Default.显示位数)
                 TextBox5.Text = 生成存档文本()
             End If
         End If
     End Sub
 
-    Private Sub TextBox7_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles TextBox7.KeyDown
+    Private Sub Z坐标输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles Z坐标输入框.KeyDown
         If e.KeyCode = Keys.Enter Then
-            TextBox7_Validated(TextBox7, System.EventArgs.Empty)
+            Z坐标输入框_Validated(Z坐标输入框, System.EventArgs.Empty)
         End If
     End Sub
-    Private Sub TextBox7_Validated(sender As Object, e As System.EventArgs) Handles TextBox7.Validated
+    Private Sub Z坐标输入框_Validated(sender As Object, e As System.EventArgs) Handles Z坐标输入框.Validated 'z模块位置
         If _编辑状态 = -1 Then
             Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
             If 模块L IsNot Nothing Then
-                Me.TextBox7.Text = Me.TextBox7.Text.Trim
-                If isdou(Me.TextBox7.Text, 3) = True Then
-                    Dim nzbL As New 坐标A(Me.TextBox7.Text)
+                Me.Z坐标输入框.Text = Me.Z坐标输入框.Text.Trim
+                If isdou(Me.Z坐标输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(模块L.坐标.Roll, 模块L.坐标.Yaw, Double.Parse(Me.Z坐标输入框.Text))
+                    If nzbL.ToRoundString <> 模块L.坐标.ToRoundString Then
+                        模块L.坐标 = nzbL
+                    End If
+                End If
+                Me.Z坐标输入框.Text = Math.Round(Double.Parse(Z坐标输入框.Text), My.MySettings.Default.显示位数)
+                TextBox5.Text = 生成存档文本()
+            End If
+        End If
+    End Sub
+
+    Private Sub X旋转输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles X旋转输入框.KeyDown '模块旋转
+        If e.KeyCode = Keys.Enter Then
+            X旋转输入框_Validated(X旋转输入框, System.EventArgs.Empty)
+        End If
+    End Sub
+    Private Sub X旋转输入框_Validated(sender As Object, e As System.EventArgs) Handles X旋转输入框.Validated
+        If _编辑状态 = -1 Then
+            Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
+            If 模块L IsNot Nothing Then
+                Me.X旋转输入框.Text = Me.X旋转输入框.Text.Trim
+                If isdou(Me.X旋转输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(Double.Parse(Me.X旋转输入框.Text), 模块L.三维旋转坐标.Yaw, 模块L.三维旋转坐标.Pitch)
                     If nzbL.ToRoundString <> 模块L.三维旋转坐标.ToRoundString Then
                         模块L.三维旋转坐标 = nzbL
                     End If
                 End If
-                Me.TextBox7.Text = 模块L.三维旋转坐标.ToRoundString
+                Me.X旋转输入框.Text = Math.Round(Double.Parse(X旋转输入框.Text), My.MySettings.Default.显示位数)
                 TextBox8.Text = 模块L.四元旋转坐标.ToRoundString
                 TextBox5.Text = 生成存档文本()
             End If
         End If
     End Sub
+
+    Private Sub Y旋转输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles Y旋转输入框.KeyDown '模块旋转
+        If e.KeyCode = Keys.Enter Then
+            Y旋转输入框_Validated(Y旋转输入框, System.EventArgs.Empty)
+        End If
+    End Sub
+    Private Sub Y旋转输入框_Validated(sender As Object, e As System.EventArgs) Handles Y旋转输入框.Validated
+        If _编辑状态 = -1 Then
+            Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
+            If 模块L IsNot Nothing Then
+                Me.Y旋转输入框.Text = Me.Y旋转输入框.Text.Trim
+                If isdou(Me.Y旋转输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(模块L.三维旋转坐标.Roll, Double.Parse(Me.Y旋转输入框.Text), 模块L.三维旋转坐标.Pitch)
+                    If nzbL.ToRoundString <> 模块L.三维旋转坐标.ToRoundString Then
+                        模块L.三维旋转坐标 = nzbL
+                    End If
+                End If
+                Me.Y旋转输入框.Text = Math.Round(Double.Parse(Y旋转输入框.Text), My.MySettings.Default.显示位数)
+                TextBox8.Text = 模块L.四元旋转坐标.ToRoundString
+                TextBox5.Text = 生成存档文本()
+            End If
+        End If
+    End Sub
+
+    Private Sub Z旋转输入框_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles Z旋转输入框.KeyDown 'z模块旋转
+        If e.KeyCode = Keys.Enter Then
+            Z旋转输入框_Validated(Z旋转输入框, System.EventArgs.Empty)
+        End If
+    End Sub
+    Private Sub Z旋转输入框_Validated(sender As Object, e As System.EventArgs) Handles Z旋转输入框.Validated
+        If _编辑状态 = -1 Then
+            Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
+            If 模块L IsNot Nothing Then
+                Me.Z旋转输入框.Text = Me.Z旋转输入框.Text.Trim
+                If isdou(Me.Z旋转输入框.Text, 1) = True Then
+                    Dim nzbL As New 坐标A(模块L.三维旋转坐标.Roll, 模块L.三维旋转坐标.Yaw, Double.Parse(Me.Z旋转输入框.Text))
+                    If nzbL.ToRoundString <> 模块L.三维旋转坐标.ToRoundString Then
+                        模块L.三维旋转坐标 = nzbL
+                    End If
+                End If
+                Me.Z旋转输入框.Text = Math.Round(Double.Parse(Z旋转输入框.Text), My.MySettings.Default.显示位数)
+                TextBox8.Text = 模块L.四元旋转坐标.ToRoundString
+                TextBox5.Text = 生成存档文本()
+            End If
+        End If
+    End Sub
+
+
     Private Sub ComboBox2_SelectedIndexChanged(sender As Object, e As System.EventArgs) Handles ComboBox2.SelectedIndexChanged
         If _编辑状态 = -1 Then
             Dim 模块L As 模块Class = Me.ListBox2.SelectedItem
@@ -597,11 +750,13 @@ Public Class MainForm
         If 当前存档 IsNot Nothing Then
             If OpenFileDialog1.ShowDialog = Windows.Forms.DialogResult.OK Then
                 Dim 存档L As 存档Class = 载入存档(OpenFileDialog1.FileName)
+                Dim fstrLS() As String = My.Computer.FileSystem.ReadAllText(当前存档.文件路径 + 当前存档.文件名称 + ".bsg").Split(vbNewLine)
+                Dim 原存档坐标 As 坐标A = New 坐标A(fstrLS(13).Trim)
                 My.MySettings.Default.插入存档位置 = IO.Path.GetDirectoryName(OpenFileDialog1.FileName)
                 My.MySettings.Default.Save()
                 OpenFileDialog1.InitialDirectory = My.MySettings.Default.插入存档位置
                 Dim incfL As New InCForm
-                incfL.初始化(存档L)
+                incfL.初始化(存档L, 原存档坐标)
                 If incfL.ShowDialog(Me) = Windows.Forms.DialogResult.OK Then
                     当前存档.模块s.AddRange(incfL._存档L.模块s.ToArray)
                     Me.ListBox2.Items.AddRange(incfL._存档L.模块s.ToArray)
@@ -617,18 +772,6 @@ Public Class MainForm
     Private Sub Button8_Click(sender As System.Object, e As System.EventArgs) Handles Button8.Click
         Dim PEFormL As New PEForm
         PEFormL.ShowDialog()
-    End Sub
-
-    Private Sub 存档修复ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 存档修复ToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub Panel5_Paint(sender As Object, e As PaintEventArgs) Handles Panel5.Paint
-
-    End Sub
-
-    Private Sub SaveFileDialog1_FileOk(sender As Object, e As CancelEventArgs) Handles SaveFileDialog1.FileOk
-
     End Sub
 End Class
 
@@ -991,7 +1134,6 @@ Public Structure 坐标A
         Return msL
     End Function
 End Structure
-
 
 Public Structure 坐标B
     Shared Sub New()
